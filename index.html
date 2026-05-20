@@ -79,12 +79,17 @@
 
   #no-results { text-align: center; color: var(--muted); padding: 60px; display: none; }
 
+  .tabs { display: flex; gap: 4px; padding: 12px 32px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; background: var(--bg); }
+  .tab-btn { padding: 8px 16px; border-radius: 8px 8px 0 0; border: 1px solid transparent; background: transparent; color: var(--muted); font-size: 0.82rem; cursor: pointer; transition: all 0.15s; white-space: nowrap; margin-bottom: -1px; }
+  .tab-btn:hover { color: var(--text); background: var(--surface); }
+  .tab-btn.active { background: var(--surface); border-color: var(--border); border-bottom-color: var(--surface); color: var(--text); font-weight: 600; }
+
   @media (max-width: 768px) {
     .card-body.open { grid-template-columns: 1fr; }
     .response-pane:first-child { border-right: none; border-bottom: 1px solid var(--border); }
     .model-bar { grid-template-columns: 1fr; }
     header, .toolbar, .stats, main { padding-left: 16px; padding-right: 16px; }
-    .model-bar { padding-left: 16px; padding-right: 16px; }
+    .model-bar, .tabs { padding-left: 16px; padding-right: 16px; }
   }
 </style>
 </head>
@@ -107,9 +112,9 @@
   <div class="stat answered"><div class="num" id="stat-answered">—</div><div class="lbl">兩者皆答</div></div>
 </div>
 
+<div id="tabs" class="tabs"></div>
+
 <div class="toolbar">
-  <label>資料集：</label>
-  <select id="dataset-select"></select>
   <label>類別：</label>
   <select id="category-select"><option value="">全部</option></select>
   <div class="filter-btns">
@@ -125,19 +130,28 @@
 
 <script>
 const DATASETS = [
-  { label: '2026-05-20 DeepSeek-R1 7B', file: 'data/data_2026-05-20.json' }
+  { label: 'DeepSeek-R1 7B', sublabel: '2026-05-20 問題測試', file: 'data/data_2026-05-20.json' },
+  // 新增模型：把 JSON 放進 data/ 後在此加一行
+  // { label: 'Qwen2.5 7B', sublabel: '問題測試', file: 'data/qwen25_7b.json' },
+  // { label: 'GLM 5.1', sublabel: '問題測試', file: 'data/glm51.json' },
+  // { label: 'DeepSeek-R1 7B', sublabel: '詞彙觸發', file: 'data/words_deepseek_r1_7b.json' },
 ];
 
 let allResults = [];
 let currentFilter = 'all';
 let currentCategory = '';
+let currentDatasetIdx = 0;
 
-async function loadDataset(file) {
-  const r = await fetch(file);
+async function loadDataset(idx) {
+  currentDatasetIdx = idx;
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  const r = await fetch(DATASETS[idx].file);
   const data = await r.json();
   document.getElementById('model-orig').textContent = data.models.original;
   document.getElementById('model-ablit').textContent = data.models.abliterated;
   allResults = data.results;
+  currentCategory = '';
+  document.getElementById('category-select').value = '';
   updateStats();
   populateCategories();
   render();
@@ -245,14 +259,15 @@ function render() {
   });
 }
 
-// Init
-const sel = document.getElementById('dataset-select');
+// Init tabs
+const tabsEl = document.getElementById('tabs');
 DATASETS.forEach((d, i) => {
-  const o = document.createElement('option');
-  o.value = i; o.textContent = d.label;
-  sel.appendChild(o);
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+  btn.innerHTML = `<span>${d.label}</span>${d.sublabel ? `<span style="font-size:0.7rem;color:var(--muted);display:block;margin-top:1px">${d.sublabel}</span>` : ''}`;
+  btn.addEventListener('click', () => loadDataset(i));
+  tabsEl.appendChild(btn);
 });
-sel.addEventListener('change', () => loadDataset(DATASETS[sel.value].file));
 
 document.getElementById('category-select').addEventListener('change', e => {
   currentCategory = e.target.value;
@@ -268,7 +283,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
-loadDataset(DATASETS[0].file);
+loadDataset(0);
 </script>
 </body>
 </html>
