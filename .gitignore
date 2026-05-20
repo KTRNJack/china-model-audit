@@ -1,6 +1,12 @@
 # Raw results with full model responses (too large for GitHub)
 results/
 
+# Model weights
+models/*.gguf
+
+# Environment variables
+.env
+
 # Python
 __pycache__/
 *.pyc

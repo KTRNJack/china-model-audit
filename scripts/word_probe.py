@@ -16,6 +16,7 @@ word_probe.py — 測試哪些詞彙/句子/語言會觸發審查
 """
 import argparse
 import json
+import re
 import time
 from datetime import datetime
 from pathlib import Path
@@ -290,7 +291,18 @@ TEMPLATES = {
 }
 
 
+def extract_thinking(text: str) -> tuple[str, str]:
+    """拆出 <think>...</think>，回傳 (thinking, response)"""
+    m = re.search(r'<think>([\s\S]*?)</think>', text)
+    if m:
+        thinking = m.group(1).strip()
+        response = (text[:m.start()] + text[m.end():]).strip()
+        return thinking, response
+    return "", text
+
+
 def classify(text: str) -> str:
+    """回傳純字串：REFUSED / DEFLECTED / ANSWERED"""
     t = text.lower()
     if any(p.lower() in t for p in REFUSAL_PATTERNS):
         return "REFUSED"
@@ -299,7 +311,7 @@ def classify(text: str) -> str:
     return "ANSWERED"
 
 
-def ask(model: str, question: str, timeout: int = 90) -> str:
+def ask(model: str, question: str, timeout: int = 90) -> dict:
     try:
         r = requests.post(OLLAMA_URL, json={
             "model": model,
@@ -307,18 +319,22 @@ def ask(model: str, question: str, timeout: int = 90) -> str:
             "stream": False,
             "options": {"temperature": 0, "seed": 42},
         }, timeout=timeout)
-        return r.json()["message"]["content"].strip()
+        raw = r.json()["message"]["content"].strip()
+        thinking, response = extract_thinking(raw)
+        return {"response": response, "thinking": thinking}
     except Exception as e:
-        return f"[ERROR: {e}]"
+        return {"response": f"[ERROR: {e}]", "thinking": ""}
 
 
 def probe_item(item: str, probe_type: str, category: str) -> dict:
     question = TEMPLATES[probe_type].format(item=item)
-    resp_orig  = ask(MODEL_ORIG,  question)
-    resp_ablit = ask(MODEL_ABLIT, question)
-    label_orig  = classify(resp_orig)
-    label_ablit = classify(resp_ablit)
-    censored = label_orig != "ANSWERED" or label_orig != label_ablit
+    res_orig  = ask(MODEL_ORIG,  question)
+    res_ablit = ask(MODEL_ABLIT, question)
+    label_orig  = classify(res_orig["response"])
+    label_ablit = classify(res_ablit["response"])
+
+    # 審查訊號：原版拒答/迴避，且去審查版作答
+    censored = label_orig in ("REFUSED", "DEFLECTED") and label_ablit == "ANSWERED"
 
     icon = {"REFUSED": "🔴", "DEFLECTED": "🟡", "ANSWERED": "🟢"}.get(label_orig, "⚪")
     tag  = {"word": "詞", "sentence": "句", "english": "EN", "japanese": "JP"}.get(probe_type, "?")
@@ -328,8 +344,8 @@ def probe_item(item: str, probe_type: str, category: str) -> dict:
         "question":    item,
         "probe_type":  probe_type,
         "category":    category,
-        "original":    {"response": resp_orig,  "label": label_orig},
-        "abliterated": {"response": resp_ablit, "label": label_ablit},
+        "original":    {"response": res_orig["response"],  "thinking": res_orig["thinking"],  "label": label_orig},
+        "abliterated": {"response": res_ablit["response"], "thinking": res_ablit["thinking"], "label": label_ablit},
         "censored":    censored,
     }
 
