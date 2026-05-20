@@ -33,21 +33,6 @@
   .method-note { margin-top: 8px; font-size: 0.78rem; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 14px; display: inline-block; }
   .method-note strong { color: var(--text); }
 
-  .toolbar { display: flex; gap: 12px; align-items: center; padding: 16px 32px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-  .toolbar label { font-size: 0.8rem; color: var(--muted); }
-  .toolbar select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
-  .filter-btns { display: flex; gap: 6px; }
-  .filter-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
-  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
-
-  .stats { display: flex; gap: 16px; padding: 16px 32px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; min-width: 120px; }
-  .stat .num { font-size: 1.6rem; font-weight: 700; }
-  .stat .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-  .stat.refused .num { color: var(--refused); }
-  .stat.answered .num { color: var(--answered); }
-  .stat.diff .num { color: var(--deflected); }
-
   .model-bar { display: flex; gap: 24px; flex-wrap: wrap; padding: 12px 32px; background: var(--surface); border-bottom: 1px solid var(--border); }
   .model-tag { font-size: 0.8rem; }
   .model-tag .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
@@ -55,7 +40,36 @@
   .dot-neutral { background: #94a3b8; }
   .dot-ablit   { background: #34d399; }
 
+  .stats { display: flex; gap: 16px; padding: 16px 32px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; min-width: 120px; }
+  .stat .num { font-size: 1.6rem; font-weight: 700; }
+  .stat .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .stat.refused .num  { color: var(--refused); }
+  .stat.answered .num { color: var(--answered); }
+  .stat.diff .num     { color: var(--deflected); }
+  .stat.prop .num     { color: var(--propaganda); }
+
+  .toolbar { display: flex; gap: 10px; align-items: center; padding: 14px 32px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .toolbar-label { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+  .toolbar select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
+  .toolbar-sep { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; margin: 0 4px; }
+
+  .btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
+  .fbtn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 0.8rem; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .fbtn:hover { border-color: var(--accent); color: var(--text); }
+  .fbtn.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .fbtn.active-refused    { background: var(--refused-bg);    border-color: var(--refused);    color: var(--refused); }
+  .fbtn.active-propaganda { background: var(--propaganda-bg); border-color: var(--propaganda); color: var(--propaganda); }
+  .fbtn.active-censored   { background: rgba(245,158,11,0.15); border-color: var(--deflected); color: var(--deflected); }
+  .fbtn.active-answered   { background: var(--answered-bg);   border-color: var(--answered);   color: var(--answered); }
+
+  #ptype-group { display: flex; gap: 4px; }
+  #ptype-section { display: flex; align-items: center; gap: 10px; }
+  #ptype-section.hidden { display: none; }
+
   main { padding: 24px 32px; max-width: 1400px; }
+
+  #no-results { text-align: center; color: var(--muted); padding: 60px 32px; display: none; }
 
   .category-header { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
   .category-header:first-child { margin-top: 0; }
@@ -76,10 +90,10 @@
   .card-body.open { display: block; }
   .response-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; }
   .response-grid.two-col { grid-template-columns: 1fr 1fr; }
-  .response-pane { padding: 16px 18px; font-size: 0.85rem; line-height: 1.7; color: var(--text); border-right: 1px solid var(--border); }
+  .response-pane { padding: 16px 18px; font-size: 0.85rem; line-height: 1.7; border-right: 1px solid var(--border); }
   .response-pane:last-child { border-right: none; }
   .pane-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-  .response-content { white-space: pre-wrap; word-break: break-word; }
+  .response-content { white-space: pre-wrap; word-break: break-word; font-size: 0.85rem; }
 
   .thinking-block { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
   .thinking-block summary { font-size: 0.72rem; color: var(--thinking); cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center; gap: 6px; }
@@ -89,7 +103,6 @@
   .thinking-content { margin-top: 8px; font-size: 0.8rem; color: var(--muted); white-space: pre-wrap; word-break: break-word; background: var(--thinking-bg); border-left: 2px solid var(--thinking); padding: 8px 12px; border-radius: 0 4px 4px 0; }
 
   .censored-banner { background: rgba(245,158,11,0.08); border-top: 1px solid rgba(245,158,11,0.2); padding: 8px 18px; font-size: 0.75rem; color: var(--deflected); }
-
   .card.has-diff { border-left: 3px solid var(--deflected); }
 
   .chevron { color: var(--muted); font-size: 0.85rem; transition: transform 0.2s; flex-shrink: 0; margin-top: 2px; }
@@ -101,19 +114,9 @@
   .ptype-english  { color: #fb923c; border-color: rgba(251,146,60,0.4);  background: rgba(251,146,60,0.1); }
   .ptype-japanese { color: #f472b6; border-color: rgba(244,114,182,0.4); background: rgba(244,114,182,0.1); }
 
-  #ptype-row { display: flex; gap: 6px; align-items: center; }
-  #ptype-row label { font-size: 0.8rem; color: var(--muted); }
-  #ptype-row.hidden { display: none; }
-
-  #no-results { text-align: center; color: var(--muted); padding: 60px; display: none; }
-
-
   @media (max-width: 768px) {
-    .response-grid { grid-template-columns: 1fr; }
-    .response-pane:first-child { border-right: none; border-bottom: 1px solid var(--border); }
-    .model-bar { grid-template-columns: 1fr; }
-    header, .toolbar, .stats, main { padding-left: 16px; padding-right: 16px; }
-    .model-bar { padding-left: 16px; padding-right: 16px; }
+    .response-grid, .response-grid.two-col { grid-template-columns: 1fr; }
+    header, .toolbar, .stats, main, .model-bar, #no-results { padding-left: 16px; padding-right: 16px; }
   }
 </style>
 </head>
@@ -123,118 +126,116 @@
   <h1>DeepSeek-R1 7B 審查機制分析</h1>
   <p>比較原版模型（有審查訓練）與去審查版（Abliterated）對敏感問題的回應差異</p>
   <div class="method-note">
-    <strong>方法論說明：</strong>
-    「審查確認」定義為<strong>原版拒答/迴避，且去審查版正常作答</strong>。
-    兩者皆拒答的題目（如真正有害內容）不計入審查差異。
+    <strong>方法論：</strong>「審查確認」= 原版拒答／迴避，且去審查版正常作答。兩者皆拒答（如真正有害內容）不計入審查差異。
   </div>
 </header>
 
-<div id="model-bar" class="model-bar">
-  <div class="model-tag"><span class="dot dot-orig"></span>原版：<span id="model-orig">—</span></div>
-  <div class="model-tag" id="model-neutral-tag" style="display:none"><span class="dot dot-neutral"></span>中立參照：<span id="model-neutral">—</span></div>
-  <div class="model-tag"><span class="dot dot-ablit"></span>去審查：<span id="model-ablit">—</span></div>
+<div class="model-bar">
+  <div class="model-tag"><span class="dot dot-orig"></span>原版：<span id="model-orig">deepseek-r1:7b</span></div>
+  <div class="model-tag" id="neutral-tag"><span class="dot dot-neutral"></span>中立參照：<span id="model-neutral">llama3.1:8b</span></div>
+  <div class="model-tag"><span class="dot dot-ablit"></span>去審查：<span id="model-ablit">deepseek-r1-7b-abliterated</span></div>
 </div>
 
 <div class="stats">
-  <div class="stat"><div class="num" id="stat-total">—</div><div class="lbl">總題目</div></div>
-  <div class="stat refused"><div class="num" id="stat-refused">—</div><div class="lbl">原版拒答</div></div>
-  <div class="stat" style="--c:var(--propaganda)"><div class="num" id="stat-propaganda" style="color:var(--propaganda)">—</div><div class="lbl">原版宣傳</div></div>
-  <div class="stat diff"><div class="num" id="stat-censored">—</div><div class="lbl">審查確認</div></div>
-  <div class="stat answered"><div class="num" id="stat-both">—</div><div class="lbl">兩者皆答</div></div>
+  <div class="stat"><div class="num" id="s-total">—</div><div class="lbl">總題目</div></div>
+  <div class="stat refused"><div class="num" id="s-refused">—</div><div class="lbl">原版拒答</div></div>
+  <div class="stat prop"><div class="num" id="s-propaganda">—</div><div class="lbl">原版宣傳</div></div>
+  <div class="stat diff"><div class="num" id="s-censored">—</div><div class="lbl">審查確認</div></div>
+  <div class="stat answered"><div class="num" id="s-both">—</div><div class="lbl">兩者皆答</div></div>
 </div>
 
 <div class="toolbar">
-  <label>資料集：</label>
-  <select id="dataset-select"></select>
+  <!-- 資料來源 -->
+  <span class="toolbar-label">來源：</span>
+  <div class="btn-group" id="src-group">
+    <button class="fbtn active" data-src="">全部</button>
+    <button class="fbtn" data-src="semantic">語意測試</button>
+    <button class="fbtn" data-src="words">詞彙觸發</button>
+  </div>
 
-  <label style="margin-left:12px">類別：</label>
-  <select id="category-select"><option value="">全部</option></select>
+  <div class="toolbar-sep"></div>
 
-  <div id="ptype-row" class="hidden" style="margin-left:12px">
-    <label>類型：</label>
-    <div class="filter-btns">
-      <button class="ptype-btn filter-btn active" data-ptype="">全部</button>
-      <button class="ptype-btn filter-btn" data-ptype="word">單詞</button>
-      <button class="ptype-btn filter-btn" data-ptype="sentence">句子</button>
-      <button class="ptype-btn filter-btn" data-ptype="english">英文</button>
-      <button class="ptype-btn filter-btn" data-ptype="japanese">日文</button>
+  <!-- 類別 -->
+  <span class="toolbar-label">類別：</span>
+  <select id="cat-sel"><option value="">全部</option></select>
+
+  <!-- 詞彙類型 (只在 words 有資料時顯示) -->
+  <div id="ptype-section" class="hidden">
+    <div class="toolbar-sep"></div>
+    <span class="toolbar-label">類型：</span>
+    <div class="btn-group" id="ptype-group">
+      <button class="fbtn active" data-ptype="">全部</button>
+      <button class="fbtn" data-ptype="word">單詞</button>
+      <button class="fbtn" data-ptype="sentence">句子</button>
+      <button class="fbtn" data-ptype="english">英文</button>
+      <button class="fbtn" data-ptype="japanese">日文</button>
     </div>
   </div>
 
-  <div class="filter-btns" style="margin-left:auto">
-    <button class="filter-btn active" data-filter="all">全部</button>
-    <button class="filter-btn" data-filter="refused">原版拒答</button>
-    <button class="filter-btn" data-filter="propaganda">原版宣傳</button>
-    <button class="filter-btn" data-filter="censored">審查確認</button>
-    <button class="filter-btn" data-filter="both">兩者皆答</button>
+  <div class="toolbar-sep" style="margin-left:auto"></div>
+
+  <!-- 結果過濾 -->
+  <div class="btn-group" id="result-group">
+    <button class="fbtn active" data-filter="all">全部</button>
+    <button class="fbtn" data-filter="refused">原版拒答</button>
+    <button class="fbtn" data-filter="propaganda">原版宣傳</button>
+    <button class="fbtn" data-filter="censored">審查確認</button>
+    <button class="fbtn" data-filter="both">兩者皆答</button>
   </div>
 </div>
 
-<main id="main">
-  <div id="no-results">沒有符合條件的結果</div>
-</main>
+<main id="main"></main>
+<div id="no-results">沒有符合條件的結果</div>
 
 <script>
-const DATASETS = [
-  { label: '3-Way 語意測試', sublabel: 'DeepSeek-R1 7B · 2026-05-20', file: 'data/data_2026-05-20_23-18_v3_three_way.json' },
-  { label: '語意測試', sublabel: 'DeepSeek-R1 7B · 2026-05-20', file: 'data/sentences_deepseek-r1-7b_2026-05-20.json' },
-  { label: '詞彙觸發', sublabel: 'DeepSeek-R1 7B · 2026-05-20', file: 'data/words_deepseek-r1-7b_2026-05-20.json' },
-  // 新增資料集：把 JSON 放進 data/ 後在此加一行
-  // { label: '語意測試', sublabel: 'Qwen2.5 7B · YYYY-MM-DD', file: 'data/sentences_qwen25-7b_YYYY-MM-DD.json' },
+// ── 資料來源 ───────────────────────────────────────────────────────────────
+const SOURCES = [
+  { key: 'semantic', file: 'data/data_2026-05-20_23-18_v3_three_way.json' },
+  { key: 'words',    file: 'data/words_deepseek-r1-7b_2026-05-20.json'    },
 ];
 
-let allResults = [];
-let currentFilter = 'all';
-let currentCategory = '';
-let currentProbeType = '';
+// ── 狀態 ───────────────────────────────────────────────────────────────────
+let allResults   = [];
+let curSrc       = '';
+let curCat       = '';
+let curPtype     = '';
+let curFilter    = 'all';
 
-async function loadDataset(idx) {
-  const r = await fetch(DATASETS[idx].file);
-  const data = await r.json();
-  document.getElementById('model-orig').textContent = data.models.original;
-  document.getElementById('model-ablit').textContent = data.models.abliterated;
-  const hasNeutral = !!data.models.neutral;
-  document.getElementById('model-neutral-tag').style.display = hasNeutral ? '' : 'none';
-  if (hasNeutral) document.getElementById('model-neutral').textContent = data.models.neutral;
-  allResults = data.results;
-  currentCategory = '';
-  currentProbeType = '';
-  currentFilter = 'all';
-  document.getElementById('category-select').value = '';
-  document.querySelectorAll('.filter-btn:not(.ptype-btn)').forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
-  document.querySelectorAll('.ptype-btn').forEach(b => b.classList.toggle('active', b.dataset.ptype === ''));
+// ── 固定 DOM 引用（避免 innerHTML 清空後變 null 的 bug） ────────────────────
+const mainEl      = document.getElementById('main');
+const noResultsEl = document.getElementById('no-results');
 
-  const hasTypes = allResults.some(r => r.probe_type);
-  document.getElementById('ptype-row').classList.toggle('hidden', !hasTypes);
-
-  populateCategories();
+// ── 載入所有資料 ────────────────────────────────────────────────────────────
+async function loadAll() {
+  for (const src of SOURCES) {
+    try {
+      const r    = await fetch(src.file);
+      const data = await r.json();
+      data.results.forEach(item => { item._src = src.key; });
+      allResults.push(...data.results);
+    } catch (e) {
+      console.error('無法載入', src.file, e);
+    }
+  }
+  populateCats();
   updateStats();
   render();
 }
 
+// ── 統計數字（永遠基於全部資料，不受 filter 影響） ─────────────────────────
 function updateStats() {
-  document.getElementById('stat-total').textContent     = allResults.length;
-  document.getElementById('stat-refused').textContent   = allResults.filter(r => r.original.label === 'REFUSED').length;
-  document.getElementById('stat-propaganda').textContent= allResults.filter(r => r.original.label === 'PROPAGANDA').length;
-  document.getElementById('stat-censored').textContent  = allResults.filter(r => r.censored).length;
-  document.getElementById('stat-both').textContent      = allResults.filter(r => r.original.label === 'ANSWERED' && r.abliterated.label === 'ANSWERED').length;
+  document.getElementById('s-total').textContent     = allResults.length;
+  document.getElementById('s-refused').textContent   = allResults.filter(r => r.original.label === 'REFUSED').length;
+  document.getElementById('s-propaganda').textContent= allResults.filter(r => r.original.label === 'PROPAGANDA').length;
+  document.getElementById('s-censored').textContent  = allResults.filter(r => r.censored).length;
+  document.getElementById('s-both').textContent      = allResults.filter(r =>
+    r.original.label === 'ANSWERED' && r.abliterated.label === 'ANSWERED').length;
 }
 
-function filtered() {
-  return allResults.filter(r => {
-    if (currentCategory  && r.category   !== currentCategory)  return false;
-    if (currentProbeType && r.probe_type !== currentProbeType) return false;
-    if (currentFilter === 'censored')   return r.censored;
-    if (currentFilter === 'refused')    return r.original.label === 'REFUSED';
-    if (currentFilter === 'propaganda') return r.original.label === 'PROPAGANDA';
-    if (currentFilter === 'both')       return r.original.label === 'ANSWERED' && r.abliterated.label === 'ANSWERED';
-    return true;
-  });
-}
-
-function populateCategories() {
-  const cats = [...new Set(allResults.map(r => r.category).filter(Boolean))];
-  const sel = document.getElementById('category-select');
+// ── 填充類別 dropdown ────────────────────────────────────────────────────────
+function populateCats() {
+  const sel  = document.getElementById('cat-sel');
+  const cats = [...new Set(allResults.map(r => r.category).filter(Boolean))].sort();
   sel.innerHTML = '<option value="">全部</option>';
   cats.forEach(c => {
     const o = document.createElement('option');
@@ -243,76 +244,101 @@ function populateCategories() {
   });
 }
 
-function labelText(label) {
-  return { REFUSED: '🚫 拒答', ANSWERED: '✅ 已答', DEFLECTED: '↩ 迴避', PROPAGANDA: '📢 宣傳' }[label] || label;
+// ── 過濾邏輯 ─────────────────────────────────────────────────────────────────
+function filtered() {
+  return allResults.filter(r => {
+    if (curSrc   && r._src        !== curSrc)   return false;
+    if (curCat   && r.category    !== curCat)   return false;
+    if (curPtype && r.probe_type  !== curPtype) return false;
+    if (curFilter === 'refused')    return r.original.label === 'REFUSED';
+    if (curFilter === 'propaganda') return r.original.label === 'PROPAGANDA';
+    if (curFilter === 'censored')   return r.censored;
+    if (curFilter === 'both')       return r.original.label === 'ANSWERED' && r.abliterated.label === 'ANSWERED';
+    return true;
+  });
 }
 
+// ── 標籤文字 ─────────────────────────────────────────────────────────────────
+function labelText(label) {
+  return { REFUSED: '🚫 拒答', ANSWERED: '✅ 已答', DEFLECTED: '↩ 迴避', PROPAGANDA: '📢 宣傳' }[label] || label || '?';
+}
+
+// ── 渲染單一 pane ──────────────────────────────────────────────────────────
 function renderPane(side, dotClass, title) {
-  const response = (side.response || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const thinking = (side.thinking || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const thinkingBlock = thinking
+  if (!side) return '';
+  const response = (side.response || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const thinking = (side.thinking || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const thinkHTML = thinking
     ? `<details class="thinking-block">
-        <summary>🧠 思考過程</summary>
-        <div class="thinking-content">${thinking}</div>
+         <summary>🧠 思考過程</summary>
+         <div class="thinking-content">${thinking}</div>
        </details>`
     : '';
-  return `
-    <div class="response-pane">
-      <div class="pane-label"><span class="dot ${dotClass}"></span>${title}</div>
-      <div class="response-content">${response || '（無回應）'}</div>
-      ${thinkingBlock}
-    </div>`;
+  return `<div class="response-pane">
+    <div class="pane-label"><span class="dot ${dotClass}"></span>${title}
+      <span class="badge ${side.label}" style="margin-left:6px">${labelText(side.label)}</span>
+    </div>
+    <div class="response-content">${response || '（無回應）'}</div>
+    ${thinkHTML}
+  </div>`;
 }
 
+// ── 主渲染 ────────────────────────────────────────────────────────────────
 function render() {
-  const main = document.getElementById('main');
-  const noResults = document.getElementById('no-results');
   const results = filtered();
 
+  // 更新 ptype section 可見性（只有當前資料包含 probe_type 才顯示）
+  const hasPtype = results.some(r => r.probe_type) || (curSrc === 'words') || (curSrc === '' && allResults.some(r => r.probe_type));
+  document.getElementById('ptype-section').classList.toggle('hidden', !hasPtype);
+
+  // 更新 neutral model bar 可見性
+  const hasAnyNeutral = results.some(r => r.neutral);
+  document.getElementById('neutral-tag').style.display = hasAnyNeutral ? '' : 'none';
+
+  mainEl.innerHTML = '';
+
   if (!results.length) {
-    main.innerHTML = '';
-    main.appendChild(noResults);
-    noResults.style.display = 'block';
+    noResultsEl.style.display = 'block';
     return;
   }
-  noResults.style.display = 'none';
+  noResultsEl.style.display = 'none';
 
+  // 按類別分組
   const byCategory = {};
   results.forEach(r => {
     const key = r.category || '（未分類）';
-    if (!byCategory[key]) byCategory[key] = [];
-    byCategory[key].push(r);
+    (byCategory[key] = byCategory[key] || []).push(r);
   });
 
-  main.innerHTML = '';
+  const ptypeLabels = { word: '單詞', sentence: '句子', english: 'EN', japanese: 'JP' };
+
   Object.entries(byCategory).forEach(([cat, items]) => {
     const catEl = document.createElement('div');
     catEl.className = 'category-header';
     catEl.textContent = cat;
-    main.appendChild(catEl);
+    mainEl.appendChild(catEl);
 
     items.forEach(r => {
       const card = document.createElement('div');
       card.className = 'card' + (r.censored ? ' has-diff' : '');
 
-      const ptypeLabels = { word: '單詞', sentence: '句子', english: 'EN', japanese: 'JP' };
       const ptypeBadge = r.probe_type
         ? `<span class="ptype-badge ptype-${r.probe_type}">${ptypeLabels[r.probe_type] || r.probe_type}</span>`
         : '';
 
+      const hasNeutral = !!r.neutral;
       const header = document.createElement('div');
       header.className = 'card-header';
       header.innerHTML = `
         <span class="chevron">▶</span>
-        <span class="question">${r.question}</span>
+        <span class="question">${r.question.replace(/</g,'&lt;')}</span>
         <div class="badges">
           ${ptypeBadge}
-          <span class="badge ${r.original.label}" title="原版">${labelText(r.original.label)}</span>
-          ${r.neutral ? `<span class="badge ${r.neutral.label}" title="中立">中立 ${labelText(r.neutral.label)}</span>` : ''}
-          <span class="badge ${r.abliterated.label}" title="去審查">${labelText(r.abliterated.label)}</span>
+          <span class="badge ${r.original.label}" title="原版">原版 ${labelText(r.original.label)}</span>
+          ${hasNeutral ? `<span class="badge ${r.neutral.label}" title="中立">中立 ${labelText(r.neutral.label)}</span>` : ''}
+          <span class="badge ${r.abliterated.label}" title="去審查">去審查 ${labelText(r.abliterated.label)}</span>
         </div>`;
 
-      const hasNeutral = !!r.neutral;
       const body = document.createElement('div');
       body.className = 'card-body';
       body.innerHTML = `
@@ -321,7 +347,7 @@ function render() {
           ${hasNeutral ? renderPane(r.neutral, 'dot-neutral', '中立參照') : ''}
           ${renderPane(r.abliterated, 'dot-ablit',   '去審查回應')}
         </div>
-        ${r.censored ? '<div class="censored-banner">⚠️ 審查確認：原版拒答 / 迴避，去審查版正常作答</div>' : ''}`;
+        ${r.censored ? '<div class="censored-banner">⚠️ 審查確認：原版拒答／迴避，去審查版正常作答</div>' : ''}`;
 
       header.addEventListener('click', () => {
         const open = body.classList.toggle('open');
@@ -330,45 +356,65 @@ function render() {
 
       card.appendChild(header);
       card.appendChild(body);
-      main.appendChild(card);
+      mainEl.appendChild(card);
     });
   });
 }
 
-// ── 初始化 ───────────────────────────────────────────────────────────────
-const datasetSel = document.getElementById('dataset-select');
-DATASETS.forEach((d, i) => {
-  const o = document.createElement('option');
-  o.value = i;
-  o.textContent = d.sublabel ? `${d.label} — ${d.sublabel}` : d.label;
-  datasetSel.appendChild(o);
-});
-datasetSel.addEventListener('change', e => loadDataset(Number(e.target.value)));
+// ── 事件綁定 ──────────────────────────────────────────────────────────────
 
-document.getElementById('category-select').addEventListener('change', e => {
-  currentCategory = e.target.value;
+// 來源按鈕
+document.getElementById('src-group').addEventListener('click', e => {
+  const btn = e.target.closest('[data-src]');
+  if (!btn) return;
+  document.querySelectorAll('#src-group .fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  curSrc = btn.dataset.src;
+  // 重置 ptype 按鈕
+  curPtype = '';
+  document.querySelectorAll('#ptype-group .fbtn').forEach(b => b.classList.toggle('active', b.dataset.ptype === ''));
+  // 重新填充類別
+  const relevantResults = curSrc ? allResults.filter(r => r._src === curSrc) : allResults;
+  const cats = [...new Set(relevantResults.map(r => r.category).filter(Boolean))].sort();
+  const sel = document.getElementById('cat-sel');
+  sel.innerHTML = '<option value="">全部</option>';
+  cats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+  curCat = '';
   render();
 });
 
-document.querySelectorAll('.filter-btn:not(.ptype-btn)').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn:not(.ptype-btn)').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter;
-    render();
-  });
+// 類別
+document.getElementById('cat-sel').addEventListener('change', e => {
+  curCat = e.target.value;
+  render();
 });
 
-document.querySelectorAll('.ptype-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.ptype-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentProbeType = btn.dataset.ptype;
-    render();
-  });
+// 詞彙類型
+document.getElementById('ptype-group').addEventListener('click', e => {
+  const btn = e.target.closest('[data-ptype]');
+  if (!btn) return;
+  document.querySelectorAll('#ptype-group .fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  curPtype = btn.dataset.ptype;
+  render();
 });
 
-loadDataset(0);
+// 結果過濾
+document.getElementById('result-group').addEventListener('click', e => {
+  const btn = e.target.closest('[data-filter]');
+  if (!btn) return;
+  document.querySelectorAll('#result-group .fbtn').forEach(b => {
+    b.classList.remove('active','active-refused','active-propaganda','active-censored','active-answered');
+  });
+  const f = btn.dataset.filter;
+  const cls = { refused:'active-refused', propaganda:'active-propaganda', censored:'active-censored', both:'active-answered' }[f] || 'active';
+  btn.classList.add(cls);
+  curFilter = f;
+  render();
+});
+
+// ── 啟動 ─────────────────────────────────────────────────────────────────
+loadAll();
 </script>
 </body>
 </html>
