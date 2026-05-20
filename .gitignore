@@ -1,0 +1,10 @@
+# Raw results with full model responses (too large for GitHub)
+results/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# macOS
+.DS_Store
