@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中國 AI 模型審查比較</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2d3148;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --refused: #ef4444;
+    --refused-bg: rgba(239,68,68,0.1);
+    --answered: #22c55e;
+    --answered-bg: rgba(34,197,94,0.1);
+    --deflected: #f59e0b;
+    --deflected-bg: rgba(245,158,11,0.1);
+    --accent: #6366f1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; line-height: 1.6; }
+
+  header { border-bottom: 1px solid var(--border); padding: 24px 32px; }
+  header h1 { font-size: 1.4rem; font-weight: 700; }
+  header p { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
+
+  .toolbar { display: flex; gap: 12px; align-items: center; padding: 16px 32px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .toolbar label { font-size: 0.8rem; color: var(--muted); }
+  .toolbar select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
+  .filter-btns { display: flex; gap: 6px; }
+  .filter-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  .stats { display: flex; gap: 16px; padding: 16px 32px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; min-width: 120px; }
+  .stat .num { font-size: 1.6rem; font-weight: 700; }
+  .stat .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .stat.refused .num { color: var(--refused); }
+  .stat.answered .num { color: var(--answered); }
+  .stat.diff .num { color: var(--deflected); }
+
+  .model-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 12px 32px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .model-tag { font-size: 0.8rem; }
+  .model-tag span { font-weight: 600; }
+  .model-tag .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .dot-orig { background: #818cf8; }
+  .dot-ablit { background: #34d399; }
+
+  main { padding: 24px 32px; max-width: 1400px; }
+
+  .category-header { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .category-header:first-child { margin-top: 0; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .card-header { padding: 14px 18px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
+  .card-header:hover { background: rgba(255,255,255,0.02); }
+  .question { font-size: 0.95rem; flex: 1; }
+  .badges { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .badge { font-size: 0.72rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+  .badge.REFUSED   { background: var(--refused-bg);   color: var(--refused);   border: 1px solid rgba(239,68,68,0.3); }
+  .badge.ANSWERED  { background: var(--answered-bg);  color: var(--answered);  border: 1px solid rgba(34,197,94,0.3); }
+  .badge.DEFLECTED { background: var(--deflected-bg); color: var(--deflected); border: 1px solid rgba(245,158,11,0.3); }
+
+  .card-body { display: none; border-top: 1px solid var(--border); }
+  .card-body.open { display: grid; grid-template-columns: 1fr 1fr; }
+  .response-pane { padding: 16px 18px; font-size: 0.85rem; line-height: 1.7; color: var(--text); }
+  .response-pane:first-child { border-right: 1px solid var(--border); }
+  .response-pane .pane-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .response-pane .content { white-space: pre-wrap; word-break: break-word; }
+
+  .diff-marker { width: 4px; flex-shrink: 0; align-self: stretch; }
+  .card.has-diff { border-left: 3px solid var(--deflected); }
+
+  .chevron { color: var(--muted); font-size: 0.85rem; transition: transform 0.2s; flex-shrink: 0; margin-top: 2px; }
+  .card-header.expanded .chevron { transform: rotate(90deg); }
+
+  #no-results { text-align: center; color: var(--muted); padding: 60px; display: none; }
+
+  @media (max-width: 768px) {
+    .card-body.open { grid-template-columns: 1fr; }
+    .response-pane:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    .model-bar { grid-template-columns: 1fr; }
+    header, .toolbar, .stats, main { padding-left: 16px; padding-right: 16px; }
+    .model-bar { padding-left: 16px; padding-right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>中國 AI 模型審查比較</h1>
+  <p>比較原版模型（有審查）與去審查版（Abliterated）對敏感問題的回應差異</p>
+</header>
+
+<div id="model-bar" class="model-bar">
+  <div class="model-tag"><span class="dot dot-orig"></span>原版：<span id="model-orig">—</span></div>
+  <div class="model-tag"><span class="dot dot-ablit"></span>去審查：<span id="model-ablit">—</span></div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="num" id="stat-total">—</div><div class="lbl">總題目</div></div>
+  <div class="stat refused"><div class="num" id="stat-refused">—</div><div class="lbl">原版拒答</div></div>
+  <div class="stat diff"><div class="num" id="stat-diff">—</div><div class="lbl">有差異</div></div>
+  <div class="stat answered"><div class="num" id="stat-answered">—</div><div class="lbl">兩者皆答</div></div>
+</div>
+
+<div class="toolbar">
+  <label>資料集：</label>
+  <select id="dataset-select"></select>
+  <label>類別：</label>
+  <select id="category-select"><option value="">全部</option></select>
+  <div class="filter-btns">
+    <button class="filter-btn active" data-filter="all">全部</button>
+    <button class="filter-btn" data-filter="diff">僅顯示差異</button>
+    <button class="filter-btn" data-filter="refused">原版拒答</button>
+  </div>
+</div>
+
+<main id="main">
+  <div id="no-results">沒有符合條件的結果</div>
+</main>
+
+<script>
+const DATASETS = [
+  { label: '2026-05-20 DeepSeek-R1 7B', file: 'data/data_2026-05-20.json' }
+];
+
+let allResults = [];
+let currentFilter = 'all';
+let currentCategory = '';
+
+async function loadDataset(file) {
+  const r = await fetch(file);
+  const data = await r.json();
+  document.getElementById('model-orig').textContent = data.models.original;
+  document.getElementById('model-ablit').textContent = data.models.abliterated;
+  allResults = data.results;
+  updateStats();
+  populateCategories();
+  render();
+}
+
+function updateStats() {
+  const visible = filtered();
+  document.getElementById('stat-total').textContent = allResults.length;
+  document.getElementById('stat-refused').textContent = allResults.filter(r => r.original.label === 'REFUSED').length;
+  document.getElementById('stat-diff').textContent = allResults.filter(r => r.censored).length;
+  document.getElementById('stat-answered').textContent = allResults.filter(r => r.original.label === 'ANSWERED' && r.abliterated.label === 'ANSWERED').length;
+}
+
+function filtered() {
+  return allResults.filter(r => {
+    if (currentCategory && r.category !== currentCategory) return false;
+    if (currentFilter === 'diff') return r.censored;
+    if (currentFilter === 'refused') return r.original.label === 'REFUSED';
+    return true;
+  });
+}
+
+function populateCategories() {
+  const cats = [...new Set(allResults.map(r => r.category))];
+  const sel = document.getElementById('category-select');
+  sel.innerHTML = '<option value="">全部</option>';
+  cats.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    sel.appendChild(o);
+  });
+}
+
+function labelText(label) {
+  return { REFUSED: '🚫 拒答', ANSWERED: '✅ 已答', DEFLECTED: '↩ 迴避' }[label] || label;
+}
+
+function cleanResponse(text) {
+  return text.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/^\*+\s*/gm, '').trim();
+}
+
+function render() {
+  const main = document.getElementById('main');
+  const noResults = document.getElementById('no-results');
+  const results = filtered();
+
+  if (!results.length) {
+    main.innerHTML = '';
+    main.appendChild(noResults);
+    noResults.style.display = 'block';
+    return;
+  }
+  noResults.style.display = 'none';
+
+  const byCategory = {};
+  results.forEach(r => {
+    if (!byCategory[r.category]) byCategory[r.category] = [];
+    byCategory[r.category].push(r);
+  });
+
+  main.innerHTML = '';
+  Object.entries(byCategory).forEach(([cat, items]) => {
+    const catEl = document.createElement('div');
+    catEl.className = 'category-header';
+    catEl.textContent = cat;
+    main.appendChild(catEl);
+
+    items.forEach((r, i) => {
+      const card = document.createElement('div');
+      card.className = 'card' + (r.censored ? ' has-diff' : '');
+
+      const header = document.createElement('div');
+      header.className = 'card-header';
+      header.innerHTML = `
+        <span class="chevron">▶</span>
+        <span class="question">${r.question}</span>
+        <div class="badges">
+          <span class="badge ${r.original.label}" title="原版">${labelText(r.original.label)}</span>
+          <span class="badge ${r.abliterated.label}" title="去審查">${labelText(r.abliterated.label)}</span>
+        </div>`;
+
+      const body = document.createElement('div');
+      body.className = 'card-body';
+      const origClean = cleanResponse(r.original.response);
+      const ablitClean = cleanResponse(r.abliterated.response);
+      body.innerHTML = `
+        <div class="response-pane">
+          <div class="pane-label"><span class="dot dot-orig"></span>原版回應</div>
+          <div class="content">${origClean || '（無回應）'}</div>
+        </div>
+        <div class="response-pane">
+          <div class="pane-label"><span class="dot dot-ablit"></span>去審查回應</div>
+          <div class="content">${ablitClean || '（無回應）'}</div>
+        </div>`;
+
+      header.addEventListener('click', () => {
+        const open = body.classList.toggle('open');
+        header.classList.toggle('expanded', open);
+      });
+
+      card.appendChild(header);
+      card.appendChild(body);
+      main.appendChild(card);
+    });
+  });
+}
+
+// Init
+const sel = document.getElementById('dataset-select');
+DATASETS.forEach((d, i) => {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = d.label;
+  sel.appendChild(o);
+});
+sel.addEventListener('change', () => loadDataset(DATASETS[sel.value].file));
+
+document.getElementById('category-select').addEventListener('change', e => {
+  currentCategory = e.target.value;
+  render();
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    render();
+  });
+});
+
+loadDataset(DATASETS[0].file);
+</script>
+</body>
+</html>
