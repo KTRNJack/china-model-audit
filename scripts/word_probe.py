@@ -27,8 +27,8 @@ OLLAMA_URL  = "http://localhost:11434/api/chat"
 MODEL_ORIG  = "deepseek-r1:7b"
 MODEL_ABLIT = "deepseek-r1-7b-abliterated"
 
-RESULTS_DIR = Path(__file__).parent / "results"
-SITE_DIR    = Path(__file__).parent / "site" / "data"
+RESULTS_DIR = Path(__file__).parent.parent / "results"
+SITE_DIR    = Path(__file__).parent.parent / "data"
 RESULTS_DIR.mkdir(exist_ok=True)
 SITE_DIR.mkdir(exist_ok=True)
 

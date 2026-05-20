@@ -18,8 +18,8 @@ MODEL_ORIG  = "deepseek-r1:7b"               # 原版（有審查）
 MODEL_ABLIT = "deepseek-r1-7b-abliterated"   # 去審查版
 
 PROMPTS_FILE = Path(__file__).parent / "prompts.json"
-RESULTS_DIR  = Path(__file__).parent / "results"
-SITE_DIR     = Path(__file__).parent / "site" / "data"
+RESULTS_DIR  = Path(__file__).parent.parent / "results"
+SITE_DIR     = Path(__file__).parent.parent / "data"
 RESULTS_DIR.mkdir(exist_ok=True)
 SITE_DIR.mkdir(exist_ok=True)
 

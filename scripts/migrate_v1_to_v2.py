@@ -11,8 +11,8 @@ import json
 import re
 from pathlib import Path
 
-RESULTS_DIR = Path(__file__).parent / "results"
-SITE_DIR    = Path(__file__).parent / "site" / "data"
+RESULTS_DIR = Path(__file__).parent.parent / "results"
+SITE_DIR    = Path(__file__).parent.parent / "data"
 
 LABEL_MAP = {
     "🚫 REFUSED":   "REFUSED",
