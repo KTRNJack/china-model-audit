@@ -50,6 +50,12 @@ MODEL_META = {
         "company": "Meta",
         "dot":     "#94a3b8",
     },
+    "gemini": {
+        "role":    "neutral",
+        "name":    "Gemini",
+        "company": "Google",
+        "dot":     "#4285f4",
+    },
     "qwen2.5:7b": {
         "role":    "censored",
         "pair":    "huihui_ai/qwen2.5-abliterate:7b-instruct",
@@ -89,9 +95,27 @@ def auto_sources(data_dir: Path) -> list[tuple[str, Path]]:
             continue
         if d.get("type") == "word_probe" and "results" in d:
             sources.append(("words", f))
+        elif d.get("type") == "gemini_neutral" and "results" in d:
+            pass  # 由 load_gemini_neutral() 單獨處理
         elif "results" in d and "models" in d:
             sources.append(("semantic", f))
     return sources
+
+
+def load_gemini_neutral(data_dir: Path) -> dict[tuple, dict]:
+    """載入最新一份 neutral_gemini_*.json，回傳 {(question, _src): response_dict}。"""
+    files = sorted(data_dir.glob("neutral_gemini_*.json"))
+    if not files:
+        return {}
+    latest = files[-1]
+    d = json.loads(latest.read_text(encoding="utf-8"))
+    cache = {}
+    for r in d.get("results", []):
+        src = "words" if r.get("src") == "word" else "semantic"
+        key = (r["question"], src)
+        cache[key] = {"response": r.get("response", ""), "thinking": "", "label": r.get("label", "ANSWERED")}
+    print(f"  ✓ [gemini  ] {latest.name}  {len(cache)} 筆")
+    return cache
 
 
 def convert_result(r: dict, file_models: dict, src_key: str) -> dict:
@@ -144,6 +168,8 @@ def main():
         all_results.extend(converted)
         print(f"  ✓ [{src_key:8}] {path.name}  {len(converted)} 筆")
 
+    gemini_cache = load_gemini_neutral(DATA_DIR)
+
     # 把同一題（question + category + _src 相同）的多筆合併成一筆
     seen: dict[tuple, int] = {}
     merged: list[dict] = []
@@ -156,7 +182,23 @@ def main():
             seen[key] = len(merged)
             merged.append(r)
     all_results = merged
+
+    # 注入 Gemini neutral 回應
+    injected = 0
+    for r in all_results:
+        key = (r["question"], r["_src"])
+        if key in gemini_cache:
+            r["responses"]["gemini"] = gemini_cache[key]
+            injected += 1
+    if gemini_cache:
+        used_models.add("gemini")
+        print(f"  Gemini 注入：{injected} 筆")
+
     print(f"\n  合併後：{len(all_results)} 筆")
+
+    # 有 Gemini 就用 Gemini 當中立，移除 Llama
+    if "gemini" in used_models:
+        used_models.discard("llama3.1:8b")
 
     # META 只納入本次資料實際用到的模型
     models_meta = {

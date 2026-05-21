@@ -79,7 +79,7 @@ def classify(text: str) -> str:
     return "ANSWERED"
 
 
-def ask(model: str, question: str, timeout: int = 120, retries: int = 2) -> dict:
+def ask(model: str, question: str, timeout: int = 300, retries: int = 2) -> dict:
     for attempt in range(1 + retries):
         try:
             r = requests.post(OLLAMA_URL, json={

@@ -169,9 +169,53 @@
       { padding-left: 16px; padding-right: 16px; }
     .stat-bar { min-width: 28px; }
   }
+
+  /* ── 全文 Modal ── */
+  .resp-truncated { color: var(--muted); font-size: .8rem; margin-top: 4px; }
+  .btn-fulltext {
+    display: inline-block; margin-top: 6px; padding: 2px 8px;
+    font-size: .72rem; border: 1px solid var(--border); border-radius: 4px;
+    background: none; color: var(--muted); cursor: pointer;
+  }
+  .btn-fulltext:hover { color: var(--fg); border-color: var(--accent); }
+  #resp-modal {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,.6); align-items: center; justify-content: center;
+  }
+  #resp-modal.open { display: flex; }
+  #resp-modal-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    width: min(780px, 92vw); max-height: 80vh; display: flex; flex-direction: column;
+    box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  }
+  #resp-modal-head {
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .82rem; color: var(--muted); flex-shrink: 0;
+  }
+  #resp-modal-body {
+    padding: 18px; overflow-y: auto; font-size: .83rem; line-height: 1.75;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  #resp-modal-close {
+    background: none; border: none; color: var(--muted); font-size: 1.1rem;
+    cursor: pointer; padding: 2px 6px; border-radius: 4px;
+  }
+  #resp-modal-close:hover { color: var(--fg); background: var(--border); }
 </style>
 </head>
 <body>
+
+<!-- 全文 Modal -->
+<div id="resp-modal">
+  <div id="resp-modal-box">
+    <div id="resp-modal-head">
+      <span id="resp-modal-title"></span>
+      <button id="resp-modal-close" title="關閉">✕</button>
+    </div>
+    <div id="resp-modal-body"></div>
+  </div>
+</div>
 
 <header>
   <h1>中國 LLM 審查機制分析</h1>
@@ -270,6 +314,7 @@ function buildFamilies() {
   const neutralKeys = Object.keys(META.models).filter(k => META.models[k].role === 'neutral');
   return Object.entries(META.models)
     .filter(([, m]) => m.role === 'censored')
+    .sort((a, b) => (a[1].name||'').localeCompare(b[1].name||''))
     .map(([key, info]) => {
       const members = [key, ...neutralKeys];
       if (info.pair && META.models[info.pair]) members.push(info.pair);
@@ -392,10 +437,20 @@ function populateCats() {
 }
 
 // ── 單一回應 pane ─────────────────────────────────────────────────────
+const RESP_LIMIT = 300;
+
 function renderPane(side, m) {
   if (!side) return '';
   const thinkHtml = side.thinking
     ? `<details class="think"><summary>🧠 思考過程</summary><div class="think-body">${esc(side.thinking)}</div></details>`
+    : '';
+  const resp = side.response || '';
+  const isLong = resp.length > RESP_LIMIT;
+  const displayText = isLong ? resp.slice(0, RESP_LIMIT) : resp;
+  const fullBtn = isLong
+    ? `<div class="resp-truncated">…（共 ${resp.length.toLocaleString()} 字）</div>
+       <button class="btn-fulltext" onclick="openRespModal(this)"
+         data-full="${esc(resp)}" data-title="${esc(m.name)}">查看全文 →</button>`
     : '';
   return `<div class="response-pane">
     <div class="pane-label">
@@ -403,10 +458,24 @@ function renderPane(side, m) {
       <span>${m.name}</span>
       <span class="badge ${side.label}">${labelTxt(side.label)}</span>
     </div>
-    <div class="resp-text">${esc(side.response) || '（無回應）'}</div>
+    <div class="resp-text">${esc(displayText) || '（無回應）'}</div>
+    ${fullBtn}
     ${thinkHtml}
   </div>`;
 }
+
+function openRespModal(btn) {
+  document.getElementById('resp-modal-title').textContent = btn.dataset.title + ' — 完整回應';
+  document.getElementById('resp-modal-body').textContent  = btn.dataset.full;
+  document.getElementById('resp-modal').classList.add('open');
+}
+
+document.getElementById('resp-modal-close').addEventListener('click', () =>
+  document.getElementById('resp-modal').classList.remove('open'));
+document.getElementById('resp-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('resp-modal'))
+    document.getElementById('resp-modal').classList.remove('open');
+});
 
 // ── 主渲染（題目比較）────────────────────────────────────────────────
 function render() {
