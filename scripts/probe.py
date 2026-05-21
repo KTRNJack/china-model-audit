@@ -203,11 +203,19 @@ def save_results(results: list[dict], label: str = "") -> None:
 
 
 def main():
+    global MODEL_ORIG, MODEL_ABLIT, MODEL_NEUTRAL
     parser = argparse.ArgumentParser()
     parser.add_argument("--category", help="只跑特定類別（逗號分隔）")
     parser.add_argument("--prompt", help="測試單一自訂問題")
     parser.add_argument("--label", default="", help="檔名附加標籤")
+    parser.add_argument("--orig",    default=MODEL_ORIG,    help="原版模型名稱")
+    parser.add_argument("--ablit",   default=MODEL_ABLIT,   help="去審查模型名稱")
+    parser.add_argument("--neutral", default=MODEL_NEUTRAL, help="中立參照模型名稱")
     args = parser.parse_args()
+
+    MODEL_ORIG    = args.orig
+    MODEL_ABLIT   = args.ablit
+    MODEL_NEUTRAL = args.neutral
 
     if args.prompt:
         result = compare(args.prompt)
