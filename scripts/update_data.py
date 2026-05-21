@@ -24,31 +24,56 @@ SOURCES = [
 # ── 模型顯示設定（加新 LLM 只需在這裡加一筆）─────────────────────────────
 MODEL_META = {
     "deepseek-r1:7b": {
-        "role": "censored",
-        "pair": "deepseek-r1-7b-abliterated",
-        "name": "DeepSeek-R1 7B",
-        "dot":  "#818cf8",
+        "role":    "censored",
+        "pair":    "deepseek-r1-7b-abliterated",
+        "name":    "DeepSeek-R1 7B",
+        "company": "深度求索",
+        "dot":     "#818cf8",
+    },
+    "deepseek-r1:14b": {
+        "role":    "censored",
+        "pair":    "deepseek-r1-14b-abliterated",
+        "name":    "DeepSeek-R1 14B",
+        "company": "深度求索",
+        "dot":     "#6366f1",
     },
     "deepseek-r1-7b-abliterated": {
-        "role": "abliterated",
-        "name": "DeepSeek-R1 7B 去審查",
-        "dot":  "#34d399",
+        "role":    "abliterated",
+        "name":    "DeepSeek-R1 7B 去審查",
+        "company": "深度求索",
+        "dot":     "#34d399",
+    },
+    "deepseek-r1-14b-abliterated": {
+        "role":    "abliterated",
+        "name":    "DeepSeek-R1 14B 去審查",
+        "company": "深度求索",
+        "dot":     "#4ade80",
     },
     "llama3.1:8b": {
-        "role": "neutral",
-        "name": "Llama 3.1 8B",
-        "dot":  "#94a3b8",
+        "role":    "neutral",
+        "name":    "Llama 3.1 8B",
+        "company": "Meta",
+        "dot":     "#94a3b8",
     },
-    # "qwen2.5:7b": {
-    #     "role": "censored",
-    #     "pair": "qwen2.5-7b-abliterated",
-    #     "name": "Qwen 2.5 7B",
-    #     "dot":  "#f59e0b",
-    # },
-    # "qwen2.5-7b-abliterated": {
-    #     "role": "abliterated",
-    #     "name": "Qwen 2.5 7B 去審查",
-    #     "dot":  "#86efac",
+    "qwen2.5:7b": {
+        "role":    "censored",
+        "pair":    "huihui_ai/qwen2.5-abliterate:7b-instruct",
+        "name":    "Qwen 2.5 7B",
+        "company": "阿里巴巴",
+        "dot":     "#f59e0b",
+    },
+    "huihui_ai/qwen2.5-abliterate:7b-instruct": {
+        "role":    "abliterated",
+        "name":    "Qwen 2.5 7B 去審查",
+        "company": "阿里巴巴",
+        "dot":     "#fcd34d",
+    },
+    # "glm4:9b": {
+    #     "role":    "censored",
+    #     "pair":    "glm4-9b-abliterated",
+    #     "name":    "GLM-4 9B",
+    #     "company": "清華智譜",
+    #     "dot":     "#e879f9",
     # },
 }
 
