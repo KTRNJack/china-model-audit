@@ -51,14 +51,16 @@ export function populateCats(curSrc) {
 }
 
 export function render(state) {
-  const { curSrc, curCat, curPtype, curFilter } = state;
+  const { curSrc, curCat, curPtype, curFilter, curSearch } = state;
   const mainEl = document.getElementById('main');
   const noEl   = document.getElementById('no-results');
+  const sq = (curSearch || '').trim().toLowerCase();
 
   const results = DATA.filter(r => {
     if (curSrc   && r._src       !== curSrc)   return false;
     if (curCat   && r.category   !== curCat)   return false;
     if (curPtype && r.probe_type !== curPtype) return false;
+    if (sq && !(r.question||'').toLowerCase().includes(sq)) return false;
     if (curFilter === 'refused')    return isRefused(r);
     if (curFilter === 'propaganda') return isPropaganda(r);
     if (curFilter === 'censored')   return isCensored(r);
@@ -79,7 +81,9 @@ export function render(state) {
 
   Object.entries(byCat).forEach(([cat, items]) => {
     const h = document.createElement('div');
-    h.className = 'cat-hdr'; h.textContent = cat; mainEl.appendChild(h);
+    h.className = 'cat-hdr';
+    h.innerHTML = `${esc(cat)} <span class="cat-count">${items.length}</span>`;
+    mainEl.appendChild(h);
 
     items.forEach(r => {
       const card = document.createElement('div');

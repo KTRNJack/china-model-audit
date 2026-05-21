@@ -3,7 +3,7 @@ import { render, populateCats } from './components/compare.js';
 import { buildMap } from './components/map.js';
 import { initModal } from './components/modal.js';
 
-const state = { curSrc: '', curCat: '', curPtype: '', curFilter: 'all' };
+const state = { curSrc: '', curCat: '', curPtype: '', curFilter: 'all', curSearch: '' };
 
 // ── Tabs ──────────────────────────────────────────────────────────────
 let mapBuilt = false;
@@ -34,6 +34,10 @@ document.getElementById('ptype-grp').addEventListener('click', e => {
   const btn = e.target.closest('[data-ptype]'); if (!btn) return;
   document.querySelectorAll('#ptype-grp .fbtn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on'); state.curPtype = btn.dataset.ptype; render(state);
+});
+
+document.getElementById('search-input').addEventListener('input', e => {
+  state.curSearch = e.target.value; render(state);
 });
 
 document.getElementById('filter-grp').addEventListener('click', e => {
