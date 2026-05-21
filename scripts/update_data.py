@@ -16,9 +16,10 @@ DATA_DIR = ROOT / "data"
 # key = 前端過濾用的來源識別碼，path = JSON 檔路徑
 SOURCES = [
     ("semantic", DATA_DIR / "data_2026-05-21_10-40_deepseek_v4_42q.json"),  # DeepSeek 42題（含資訊戰）
+    ("semantic", DATA_DIR / "data_2026-05-21_11-13_qwen25_7b_42q.json"),    # Qwen2.5 7B 42題
     ("words",    DATA_DIR / "words_deepseek-r1-7b_2026-05-20.json"),
     # 之後加新 probe 結果：
-    # ("semantic", DATA_DIR / "data_YYYY-MM-DD_qwen.json"),
+    # ("semantic", DATA_DIR / "data_YYYY-MM-DD_model.json"),
 ]
 
 # ── 模型顯示設定（加新 LLM 只需在這裡加一筆）─────────────────────────────
