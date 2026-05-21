@@ -117,6 +117,16 @@
   .cens-banner { background: rgba(245,158,11,.08); border-top: 1px solid rgba(245,158,11,.2);
     padding: 8px 18px; font-size: .75rem; color: var(--deflected); }
 
+  /* ── Family tabs (模型家族頁籤) ── */
+  .family-tabs { display: flex; border-bottom: 1px solid var(--border); overflow-x: auto;
+    background: var(--bg); }
+  .ftab { padding: 9px 16px; background: transparent; border: none; border-bottom: 2px solid transparent;
+    color: var(--muted); cursor: pointer; font-size: .82rem; display: flex; align-items: center; gap: 7px;
+    transition: all .15s; white-space: nowrap; flex-shrink: 0; }
+  .ftab:hover { color: var(--text); background: rgba(255,255,255,.025); }
+  .ftab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .badge.sm { font-size: .6rem; padding: 1px 4px; }
+
   /* ── 審查地圖 ── */
   #map-pane { padding: 24px 32px; overflow-x: auto; }
   #map-pane h2 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
@@ -259,12 +269,26 @@ function isPropaganda(r) {
   return Object.entries(META.models).some(([m, info]) =>
     info.role === 'censored' && r.responses[m]?.label === 'PROPAGANDA');
 }
+// 至少一組 censored+abliterated 配對兩者皆正常作答
 function isBothAnswered(r) {
-  return Object.entries(META.models).every(([m, info]) => {
-    if (info.role !== 'censored' && info.role !== 'abliterated') return true;
-    return r.responses[m]?.label === 'ANSWERED';
+  return Object.entries(META.models).some(([m, info]) => {
+    if (info.role !== 'censored' || !info.pair) return false;
+    return r.responses[m]?.label === 'ANSWERED' && r.responses[info.pair]?.label === 'ANSWERED';
   });
 }
+
+// ── 模型家族（censored model + neutral + abliterated pair）────────────────
+function buildFamilies() {
+  const neutralKeys = Object.keys(META.models).filter(k => META.models[k].role === 'neutral');
+  return Object.entries(META.models)
+    .filter(([, m]) => m.role === 'censored')
+    .map(([key, info]) => {
+      const members = [key, ...neutralKeys];
+      if (info.pair && META.models[info.pair]) members.push(info.pair);
+      return { key, company: info.company || '', label: info.name, dot: info.dot, members };
+    });
+}
+const FAMILIES = buildFamilies();
 
 // ── 過濾 ─────────────────────────────────────────────────────────────────
 function filtered() {
@@ -325,10 +349,6 @@ function render() {
   if (!results.length) { noEl.style.display = 'block'; return; }
   noEl.style.display = 'none';
 
-  const roleOrder = { censored: 0, neutral: 1, abliterated: 2, unknown: 3 };
-  const modelOrder = Object.entries(META.models)
-    .sort((a, b) => (roleOrder[a[1].role]||3) - (roleOrder[b[1].role]||3))
-    .map(([k]) => k);
   const ptypeLabel = { word:'單詞', sentence:'句子', english:'EN', japanese:'JP' };
 
   const byCat = {};
@@ -339,16 +359,19 @@ function render() {
     h.className = 'cat-hdr'; h.textContent = cat; mainEl.appendChild(h);
 
     items.forEach(r => {
-      const presentModels = modelOrder.filter(m => r.responses[m]);
-      const cols = presentModels.length;
       const card = document.createElement('div');
       card.className = 'card' + (isCensored(r) ? ' censored' : '');
 
-      const badgeHtml = presentModels
-        .filter(m => META.models[m]?.role === 'censored')
-        .map(m => {
-          const s = r.responses[m];
-          return `<span class="badge ${s.label}">${META.models[m].name} ${labelTxt(s.label)}</span>`;
+      // 有資料的模型家族
+      const activeFams = FAMILIES.filter(f => f.members.some(m => r.responses[m]));
+      const multiFamily = activeFams.length > 1;
+
+      // Header badges：每個 censored 模型一個
+      const badgeHtml = activeFams
+        .filter(f => r.responses[f.key])
+        .map(f => {
+          const label = r.responses[f.key].label;
+          return `<span class="badge ${label}">${esc(f.company || f.label)} ${labelTxt(label)}</span>`;
         }).join('');
       const ptypeBadge = r.probe_type
         ? `<span class="ptype-badge ptype-${r.probe_type}">${ptypeLabel[r.probe_type]||r.probe_type}</span>` : '';
@@ -361,16 +384,54 @@ function render() {
 
       const body = document.createElement('div');
       body.className = 'card-body';
-      body.innerHTML = `
-        <div class="response-grid" style="grid-template-columns:repeat(${cols},1fr)">
-          ${presentModels.map(m => renderPane(r.responses[m], META.models[m])).join('')}
-        </div>
-        ${isCensored(r) ? '<div class="cens-banner">⚠️ 審查確認：原版拒答／迴避，去審查版正常作答</div>' : ''}`;
 
+      let bodyHtml = '';
+
+      // 多家族時顯示頁籤列
+      if (multiFamily) {
+        bodyHtml += `<div class="family-tabs">`;
+        bodyHtml += activeFams.map((f, i) => {
+          const censLabel = r.responses[f.key]?.label || '';
+          return `<button class="ftab${i===0?' active':''}" data-fkey="${f.key}">
+            <span class="dot" style="background:${f.dot}"></span>
+            <span>${esc(f.company || f.label)}</span>
+            ${censLabel ? `<span class="badge sm ${censLabel}">${labelTxt(censLabel)}</span>` : ''}
+          </button>`;
+        }).join('');
+        bodyHtml += `</div>`;
+      }
+
+      // 每個家族的回應區塊
+      activeFams.forEach((f, i) => {
+        const shown = !multiFamily || i === 0;
+        const presentMembers = f.members.filter(m => r.responses[m]);
+        bodyHtml += `<div class="family-pane" data-fkey="${f.key}"${shown ? '' : ' style="display:none"'}>
+          <div class="response-grid" style="grid-template-columns:repeat(${presentMembers.length},1fr)">
+            ${presentMembers.map(m => renderPane(r.responses[m], META.models[m])).join('')}
+          </div>
+          ${r.censored[f.key] ? '<div class="cens-banner">⚠️ 審查確認：原版拒答／迴避，去審查版正常作答</div>' : ''}
+        </div>`;
+      });
+
+      body.innerHTML = bodyHtml;
+
+      // 展開／收合
       hdr.addEventListener('click', () => {
         const open = body.classList.toggle('open');
         hdr.classList.toggle('open', open);
       });
+      // 家族頁籤切換
+      body.addEventListener('click', e => {
+        const ftab = e.target.closest('.ftab');
+        if (!ftab) return;
+        e.stopPropagation();
+        const fkey = ftab.dataset.fkey;
+        body.querySelectorAll('.ftab').forEach(t => t.classList.toggle('active', t.dataset.fkey === fkey));
+        body.querySelectorAll('.family-pane').forEach(p => {
+          p.style.display = p.dataset.fkey === fkey ? '' : 'none';
+        });
+      });
+
       card.appendChild(hdr); card.appendChild(body); mainEl.appendChild(card);
     });
   });

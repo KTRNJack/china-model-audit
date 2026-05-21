@@ -131,6 +131,20 @@ def main():
         all_results.extend(converted)
         print(f"  ✓ {path.name}  {len(converted)} 筆")
 
+    # 把同一題（question + category + _src 相同）的多筆合併成一筆
+    seen: dict[tuple, int] = {}
+    merged: list[dict] = []
+    for r in all_results:
+        key = (r["question"], r.get("category", ""), r["_src"])
+        if key in seen:
+            merged[seen[key]]["responses"].update(r["responses"])
+            merged[seen[key]]["censored"].update(r["censored"])
+        else:
+            seen[key] = len(merged)
+            merged.append(r)
+    all_results = merged
+    print(f"\n  合併後：{len(all_results)} 筆（原 {sum(1 for _ in seen)} 題）")
+
     # META 只納入本次資料實際用到的模型
     models_meta = {
         m: MODEL_META.get(m, {"role": "unknown", "name": m, "dot": "#64748b"})
