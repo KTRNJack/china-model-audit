@@ -331,7 +331,7 @@ function renderPane(side, m) {
   return `<div class="response-pane">
     <div class="pane-label">
       <span class="dot" style="background:${m.dot}"></span>
-      <span>${m.company ? `<span style="font-size:.68rem;color:var(--muted)">${m.company}</span> ` : ''}${m.name}</span>
+      <span>${m.name}</span>
       <span class="badge ${side.label}">${labelTxt(side.label)}</span>
     </div>
     <div class="resp-text">${esc(side.response) || '（無回應）'}</div>
@@ -366,12 +366,12 @@ function render() {
       const activeFams = FAMILIES.filter(f => f.members.some(m => r.responses[m]));
       const multiFamily = activeFams.length > 1;
 
-      // Header badges：每個 censored 模型一個
+      // Header badges：每個 censored 模型一個（用英文模型名）
       const badgeHtml = activeFams
         .filter(f => r.responses[f.key])
         .map(f => {
           const label = r.responses[f.key].label;
-          return `<span class="badge ${label}">${esc(f.company || f.label)} ${labelTxt(label)}</span>`;
+          return `<span class="badge ${label}">${esc(f.label)} ${labelTxt(label)}</span>`;
         }).join('');
       const ptypeBadge = r.probe_type
         ? `<span class="ptype-badge ptype-${r.probe_type}">${ptypeLabel[r.probe_type]||r.probe_type}</span>` : '';
@@ -394,7 +394,7 @@ function render() {
           const censLabel = r.responses[f.key]?.label || '';
           return `<button class="ftab${i===0?' active':''}" data-fkey="${f.key}">
             <span class="dot" style="background:${f.dot}"></span>
-            <span>${esc(f.company || f.label)}</span>
+            <span>${esc(f.label)}</span>
             ${censLabel ? `<span class="badge sm ${censLabel}">${labelTxt(censLabel)}</span>` : ''}
           </button>`;
         }).join('');
