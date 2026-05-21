@@ -2,17 +2,24 @@
 const META = {
   "generated": "2026-05-21",
   "models": {
+    "qwen2.5:7b": {
+      "role": "censored",
+      "pair": "huihui_ai/qwen2.5-abliterate:7b-instruct",
+      "name": "Qwen 2.5 7B",
+      "company": "阿里巴巴",
+      "dot": "#f59e0b"
+    },
+    "huihui_ai/qwen2.5-abliterate:7b-instruct": {
+      "role": "abliterated",
+      "name": "Qwen 2.5 7B 去審查",
+      "company": "阿里巴巴",
+      "dot": "#fcd34d"
+    },
     "llama3.1:8b": {
       "role": "neutral",
       "name": "Llama 3.1 8B",
       "company": "Meta",
       "dot": "#94a3b8"
-    },
-    "deepseek-r1-7b-abliterated": {
-      "role": "abliterated",
-      "name": "DeepSeek-R1 7B 去審查",
-      "company": "深度求索",
-      "dot": "#34d399"
     },
     "deepseek-r1:14b": {
       "role": "censored",
@@ -21,31 +28,24 @@ const META = {
       "company": "深度求索",
       "dot": "#6366f1"
     },
-    "huihui_ai/qwen2.5-abliterate:7b-instruct": {
-      "role": "abliterated",
-      "name": "Qwen 2.5 7B 去審查",
-      "company": "阿里巴巴",
-      "dot": "#fcd34d"
-    },
-    "qwen2.5:7b": {
-      "role": "censored",
-      "pair": "huihui_ai/qwen2.5-abliterate:7b-instruct",
-      "name": "Qwen 2.5 7B",
-      "company": "阿里巴巴",
-      "dot": "#f59e0b"
-    },
-    "huihui_ai/deepseek-r1-abliterated:14b": {
-      "role": "abliterated",
-      "name": "DeepSeek-R1 14B 去審查",
-      "company": "深度求索",
-      "dot": "#4ade80"
-    },
     "deepseek-r1:7b": {
       "role": "censored",
       "pair": "deepseek-r1-7b-abliterated",
       "name": "DeepSeek-R1 7B",
       "company": "深度求索",
       "dot": "#818cf8"
+    },
+    "deepseek-r1-7b-abliterated": {
+      "role": "abliterated",
+      "name": "DeepSeek-R1 7B 去審查",
+      "company": "深度求索",
+      "dot": "#34d399"
+    },
+    "huihui_ai/deepseek-r1-abliterated:14b": {
+      "role": "abliterated",
+      "name": "DeepSeek-R1 14B 去審查",
+      "company": "深度求索",
+      "dot": "#4ade80"
     }
   }
 };
