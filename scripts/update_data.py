@@ -15,7 +15,7 @@ DATA_DIR = ROOT / "data"
 # ── 要納入的資料來源 ───────────────────────────────────────────────────────
 # key = 前端過濾用的來源識別碼，path = JSON 檔路徑
 SOURCES = [
-    ("semantic", DATA_DIR / "data_2026-05-20_23-18_v3_three_way.json"),
+    ("semantic", DATA_DIR / "data_2026-05-21_10-40_deepseek_v4_42q.json"),  # DeepSeek 42題（含資訊戰）
     ("words",    DATA_DIR / "words_deepseek-r1-7b_2026-05-20.json"),
     # 之後加新 probe 結果：
     # ("semantic", DATA_DIR / "data_YYYY-MM-DD_qwen.json"),
