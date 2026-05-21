@@ -17,6 +17,7 @@ DATA_DIR = ROOT / "data"
 SOURCES = [
     ("semantic", DATA_DIR / "data_2026-05-21_10-40_deepseek_v4_42q.json"),  # DeepSeek 42題（含資訊戰）
     ("semantic", DATA_DIR / "data_2026-05-21_11-13_qwen25_7b_42q.json"),    # Qwen2.5 7B 42題
+    ("semantic", DATA_DIR / "data_2026-05-21_13-01_deepseek14b_42q.json"), # DeepSeek-R1 14B 42題
     ("words",    DATA_DIR / "words_deepseek-r1-7b_2026-05-20.json"),
     ("words",    DATA_DIR / "words_qwen2.5-7b_2026-05-21_12-26.json"),
     # 之後加新 probe 結果：
