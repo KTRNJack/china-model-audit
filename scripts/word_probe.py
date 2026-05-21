@@ -410,7 +410,8 @@ def bisect_probe(sentence: str):
 
 def save(results: list[dict], label: str) -> None:
     ts = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    slug = f"words_{label}_{ts}"
+    model_slug = MODEL_ORIG.replace(":", "-").replace("/", "_")
+    slug = f"words_{model_slug}_{ts}" + (f"_{label}" if label and label != "all" else "")
     payload = {
         "date": ts,
         "type": "word_probe",
@@ -427,13 +428,18 @@ def save(results: list[dict], label: str) -> None:
 
 
 def main():
+    global MODEL_ORIG, MODEL_ABLIT
     parser = argparse.ArgumentParser()
     parser.add_argument("--category", help="只測特定類別（逗號分隔）")
     parser.add_argument("--type", dest="probe_type",
                         help="只跑某種類型：word / sentence / english / japanese（逗號分隔）")
     parser.add_argument("--item", help="測試單一詞彙或句子，需搭配 --type")
     parser.add_argument("--bisect", help="找出句子中的觸發詞")
+    parser.add_argument("--orig",  default=MODEL_ORIG,  help="原版模型名稱")
+    parser.add_argument("--ablit", default=MODEL_ABLIT, help="去審查模型名稱")
     args = parser.parse_args()
+    MODEL_ORIG  = args.orig
+    MODEL_ABLIT = args.ablit
 
     if args.bisect:
         bisect_probe(args.bisect)

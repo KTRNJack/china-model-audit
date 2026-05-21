@@ -18,6 +18,7 @@ SOURCES = [
     ("semantic", DATA_DIR / "data_2026-05-21_10-40_deepseek_v4_42q.json"),  # DeepSeek 42題（含資訊戰）
     ("semantic", DATA_DIR / "data_2026-05-21_11-13_qwen25_7b_42q.json"),    # Qwen2.5 7B 42題
     ("words",    DATA_DIR / "words_deepseek-r1-7b_2026-05-20.json"),
+    ("words",    DATA_DIR / "words_qwen2.5-7b_2026-05-21_12-26.json"),
     # 之後加新 probe 結果：
     # ("semantic", DATA_DIR / "data_YYYY-MM-DD_model.json"),
 ]
@@ -33,7 +34,7 @@ MODEL_META = {
     },
     "deepseek-r1:14b": {
         "role":    "censored",
-        "pair":    "deepseek-r1-14b-abliterated",
+        "pair":    "huihui_ai/deepseek-r1-abliterated:14b",
         "name":    "DeepSeek-R1 14B",
         "company": "深度求索",
         "dot":     "#6366f1",
@@ -44,7 +45,7 @@ MODEL_META = {
         "company": "深度求索",
         "dot":     "#34d399",
     },
-    "deepseek-r1-14b-abliterated": {
+    "huihui_ai/deepseek-r1-abliterated:14b": {
         "role":    "abliterated",
         "name":    "DeepSeek-R1 14B 去審查",
         "company": "深度求索",
