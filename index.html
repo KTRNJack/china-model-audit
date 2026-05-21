@@ -173,35 +173,67 @@
   /* ── 全文 Modal ── */
   .resp-truncated { color: var(--muted); font-size: .8rem; margin-top: 4px; }
   .btn-fulltext {
-    display: inline-block; margin-top: 6px; padding: 2px 8px;
-    font-size: .72rem; border: 1px solid var(--border); border-radius: 4px;
-    background: none; color: var(--muted); cursor: pointer;
+    display: inline-block; margin-top: 8px; padding: 4px 12px;
+    font-size: .76rem; border: 1px solid var(--accent); border-radius: 6px;
+    background: rgba(99,102,241,.1); color: var(--accent); cursor: pointer;
+    font-weight: 500; letter-spacing: .02em;
   }
-  .btn-fulltext:hover { color: var(--fg); border-color: var(--accent); }
+  .btn-fulltext:hover { background: rgba(99,102,241,.22); }
+
   #resp-modal {
-    display: none; position: fixed; inset: 0; z-index: 999;
-    background: rgba(0,0,0,.6); align-items: center; justify-content: center;
+    display: none; position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,.82);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
   }
   #resp-modal.open { display: flex; }
+
+  body.modal-open { overflow: hidden; }
+
   #resp-modal-box {
-    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-    width: min(780px, 92vw); max-height: 80vh; display: flex; flex-direction: column;
-    box-shadow: 0 8px 40px rgba(0,0,0,.5);
+    background: #1e2130;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 14px;
+    width: min(820px, 94vw);
+    max-height: 82vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 24px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(99,102,241,.15);
+    animation: modal-in .18s ease;
   }
+  @keyframes modal-in {
+    from { opacity: 0; transform: translateY(12px) scale(.97); }
+    to   { opacity: 1; transform: none; }
+  }
+
   #resp-modal-head {
-    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
     display: flex; justify-content: space-between; align-items: center;
-    font-size: .82rem; color: var(--muted); flex-shrink: 0;
+    flex-shrink: 0; gap: 12px;
   }
+  #resp-modal-title {
+    font-size: .9rem; font-weight: 600; color: #e2e8f0;
+  }
+  #resp-modal-chars {
+    font-size: .75rem; color: var(--muted); flex-shrink: 0;
+  }
+
   #resp-modal-body {
-    padding: 18px; overflow-y: auto; font-size: .83rem; line-height: 1.75;
+    padding: 20px 22px; overflow-y: auto;
+    font-size: .88rem; line-height: 1.85; color: #cbd5e1;
     white-space: pre-wrap; word-break: break-word;
   }
+  #resp-modal-body::-webkit-scrollbar { width: 6px; }
+  #resp-modal-body::-webkit-scrollbar-track { background: transparent; }
+  #resp-modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
+
   #resp-modal-close {
-    background: none; border: none; color: var(--muted); font-size: 1.1rem;
-    cursor: pointer; padding: 2px 6px; border-radius: 4px;
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+    color: #94a3b8; font-size: 1rem; cursor: pointer;
+    padding: 4px 10px; border-radius: 6px; flex-shrink: 0; line-height: 1;
   }
-  #resp-modal-close:hover { color: var(--fg); background: var(--border); }
+  #resp-modal-close:hover { background: rgba(255,255,255,.14); color: #e2e8f0; }
 </style>
 </head>
 <body>
@@ -211,6 +243,7 @@
   <div id="resp-modal-box">
     <div id="resp-modal-head">
       <span id="resp-modal-title"></span>
+      <span id="resp-modal-chars"></span>
       <button id="resp-modal-close" title="關閉">✕</button>
     </div>
     <div id="resp-modal-body"></div>
@@ -465,16 +498,25 @@ function renderPane(side, m) {
 }
 
 function openRespModal(btn) {
-  document.getElementById('resp-modal-title').textContent = btn.dataset.title + ' — 完整回應';
-  document.getElementById('resp-modal-body').textContent  = btn.dataset.full;
+  const full = btn.dataset.full;
+  document.getElementById('resp-modal-title').textContent = btn.dataset.title;
+  document.getElementById('resp-modal-chars').textContent = full.length.toLocaleString() + ' 字';
+  document.getElementById('resp-modal-body').textContent  = full;
   document.getElementById('resp-modal').classList.add('open');
+  document.body.classList.add('modal-open');
 }
 
-document.getElementById('resp-modal-close').addEventListener('click', () =>
-  document.getElementById('resp-modal').classList.remove('open'));
+function closeRespModal() {
+  document.getElementById('resp-modal').classList.remove('open');
+  document.body.classList.remove('modal-open');
+}
+
+document.getElementById('resp-modal-close').addEventListener('click', closeRespModal);
 document.getElementById('resp-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('resp-modal'))
-    document.getElementById('resp-modal').classList.remove('open');
+  if (e.target === document.getElementById('resp-modal')) closeRespModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeRespModal();
 });
 
 // ── 主渲染（題目比較）────────────────────────────────────────────────
