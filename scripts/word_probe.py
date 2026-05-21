@@ -321,19 +321,25 @@ def classify(text: str) -> str:
     return "ANSWERED"
 
 
-def ask(model: str, question: str, timeout: int = 90) -> dict:
-    try:
-        r = requests.post(OLLAMA_URL, json={
-            "model": model,
-            "messages": [{"role": "user", "content": question}],
-            "stream": False,
-            "options": {"temperature": 0, "seed": 42},
-        }, timeout=timeout)
-        raw = r.json()["message"]["content"].strip()
-        thinking, response = extract_thinking(raw)
-        return {"response": response, "thinking": thinking}
-    except Exception as e:
-        return {"response": f"[ERROR: {e}]", "thinking": ""}
+def ask(model: str, question: str, timeout: int = 90, retries: int = 2) -> dict:
+    for attempt in range(1 + retries):
+        try:
+            r = requests.post(OLLAMA_URL, json={
+                "model": model,
+                "messages": [{"role": "user", "content": question}],
+                "stream": False,
+                "options": {"temperature": 0, "seed": 42},
+            }, timeout=timeout)
+            raw = r.json()["message"]["content"].strip()
+            thinking, response = extract_thinking(raw)
+            return {"response": response, "thinking": thinking}
+        except Exception as e:
+            if attempt < retries:
+                wait = 10 * (attempt + 1)
+                print(f" [timeout, 重試 {attempt+1}/{retries}，等 {wait}s]", end="", flush=True)
+                time.sleep(wait)
+            else:
+                return {"response": f"[ERROR: {e}]", "thinking": ""}
 
 
 def probe_item(item: str, probe_type: str, category: str) -> dict:
