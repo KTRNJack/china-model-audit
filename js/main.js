@@ -1,4 +1,5 @@
 import { buildModelStats } from './components/stats.js';
+import { buildCharts, buildMethodTags } from './components/charts.js';
 import { render, populateCats } from './components/compare.js';
 import { buildMap } from './components/map.js';
 import { initModal } from './components/modal.js';
@@ -51,6 +52,8 @@ document.getElementById('filter-grp').addEventListener('click', e => {
 
 // ── Init ──────────────────────────────────────────────────────────────
 initModal();
+buildMethodTags();
 buildModelStats();
+buildCharts();
 populateCats(state.curSrc);
 render(state);
