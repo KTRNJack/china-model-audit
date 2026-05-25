@@ -63,7 +63,7 @@ function buildCensorRateChart(items, fams) {
         <h2>模型審查率</h2>
         <p>排除對照組與有害內容後，計算原版拒答／迴避且去審查版回答的比例。</p>
       </div>
-      <div class="hbar-chart">${barChart(rows, Math.max(...rows.map(r => r.value), 1), (v, r) => `${v}% <span>${r.count}/${r.total}</span>`)}</div>
+      <div class="hbar-chart">${barChart(rows, 100, (v, r) => `${v}% <span>${r.count}/${r.total}</span>`)}</div>
     </section>`;
 }
 
@@ -239,7 +239,7 @@ function buildTopTopics(items, fams) {
         <h2>敏感主題排行榜</h2>
         <p>列出目前資料中最容易觸發審查確認的主題與模型組合。</p>
       </div>
-      <div class="hbar-chart compact">${barChart(top, Math.max(...top.map(r => r.value), 1), (v, r) => `${v}% <span>${r.count}/${r.total}</span>`)}</div>
+      <div class="hbar-chart compact">${barChart(top, 100, (v, r) => `${v}% <span>${r.count}/${r.total}</span>`)}</div>
     </section>`;
 }
 
